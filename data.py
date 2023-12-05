@@ -4,6 +4,7 @@ import time
 
 def get_image_from_video(video_path):
     print(video_path)
+    video_path = 'test.avi'
     # Return path to 10th frame in video
     cam = cv2.VideoCapture(video_path, cv2.CAP_FFMPEG) 
     print(cam.isOpened())
