@@ -9,6 +9,7 @@ def get_image_from_video(video_path):
     print(cam.isOpened())
     print(video_path)
     print(cam.getBackendName())
+    print(cam.get(5))
     try: 
         if not os.path.exists('tmp_image_data'): 
             os.makedirs('tmp_image_data')
