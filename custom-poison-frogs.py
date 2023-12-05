@@ -52,7 +52,9 @@ original_data = os.listdir(original_data_path_actors) + os.listdir(original_data
 # Face detector
 face_detector = dlib.get_frontal_face_detector()
 
-    # Load model
+cuda = True
+
+# Load model
 if model_path is not None:
     if not cuda:
         model = torch.load(model_path, map_location = "cpu")
