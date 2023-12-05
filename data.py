@@ -17,6 +17,7 @@ def get_image_from_video(video_path):
     frame_to_get = 1000
 
     success,image = cam.read()
+    print("AA", success)
     count = 0
     while success:
         success,image = cam.read()
