@@ -5,7 +5,7 @@ import time
 def get_image_from_video(video_path):
     print(video_path)
     # Return path to 10th frame in video
-    cam = cv2.VideoCapture(video_path, cv2.CAP_QT) 
+    cam = cv2.VideoCapture(video_path, cv2.CAP_FFMPEG) 
     print(cam.isOpened())
     try: 
         if not os.path.exists('tmp_image_data'): 
