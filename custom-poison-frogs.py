@@ -14,6 +14,7 @@ from tqdm import tqdm
 from torchvision import transforms
 import sys, os
 from model import get_model
+from data import base_instance, target_instance
 
 xception_default_data_transform = transforms.Compose([
         transforms.Resize((299, 299)),
@@ -49,25 +50,52 @@ original_data_path_youtube = '/exports/eddie/scratch/s2017377/code/ff/FaceForens
 fake_data = os.listdir(fake_data_path)
 original_data = os.listdir(original_data_path_actors) + os.listdir(original_data_path_youtube)
 
-# Face detector
-face_detector = dlib.get_frontal_face_detector()
-
 model = get_model()
+device = torch.device("cuda:0")
 
 # Try classifying fake as real
-base_instance = original_data[0]
-target_instance = fake_data[0]
+base_instance_vid = original_data[0]
+target_instance_vid = fake_data[0]
 
-max_iters = 10
+base_instance_path = base_instance(base_instance_vid)
+target_instance_path = target_instance(target_instance_vid)
+
+max_iters = 100
 
 def create_poison():
     print(model)
-    feature_space = nn.Sequential(*list(model.model.children())[:-2])
-
+    feature_space = nn.Sequential(*list(model.model.children())[:-1])
+    print(feature_space)
+    feature_space = feature_space.to(device)
+    for name, module in feature_space.named_modules():
+        for param in module.parameters():
+            param.requires_grad = True
+    
+    x = base_instance
     for _ in range(max_iters):
-        forward_step
-        backward_step
+        x,loss = poison_iteration(feature_space, x.detach(), base_instance, target_instance)
     return None
+
+def poison_iteration(feature_space, x, base_instance, target_instance, beta=0.25, lr=0.01):
+    x.requires_grad = True
+    
+    feature_space.eval()
+
+    fs_t = feature_space(target_instance.view(1,*target_instance.shape)).detach()
+    fs_t.requires_grad = False
+    
+    # Forward Step:
+    dif = feature_space(x.view(1,*x.shape))-fs_t
+    loss = torch.sum(torch.mul(dif,dif))
+    loss.backward()
+
+    x2 = x.clone()
+    x2-=(x.grad*lr)
+
+    # Backward Step:
+    x = (x2+lr*beta*base_instance)/(1+lr*beta)
+    
+    return x, loss.item()
 
 poison_instance = create_poison()
 
