@@ -13,35 +13,14 @@ from PIL import Image as pil_image
 from tqdm import tqdm
 from torchvision import transforms
 import sys, os
-from model import get_model
-from data import base_instance, target_instance
+from model import get_model, predict_with_model
+from data import base_instance, target_instance, get_boundingbox
 
 xception_default_data_transform = transforms.Compose([
         transforms.Resize((299, 299)),
         transforms.ToTensor(),
         transforms.Normalize([0.5]*3, [0.5]*3)
     ])
-
-def preprocess_image(image, cuda=True):
-    """
-    Preprocesses the image such that it can be fed into our network.
-    During this process we envoke PIL to cast it into a PIL image.
-
-    :param image: numpy image in opencv form (i.e., BGR and of shape
-    :return: pytorch tensor of shape [1, 3, image_size, image_size], not
-    necessarily casted to cuda
-    """
-    # Revert from BGR
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    # Preprocess using the preprocessing function used during training and
-    # casting it to PIL image
-    preprocess = xception_default_data_transform
-    preprocessed_image = preprocess(pil_image.fromarray(image))
-    # Add first dimension as the network expects a batch
-    preprocessed_image = preprocessed_image.unsqueeze(0)
-    if cuda:
-        preprocessed_image = preprocessed_image.cuda()
-    return preprocessed_image
 
 fake_data_path = '/exports/eddie/scratch/s2017377/code/ff/FaceForensics/dataset/manipulated_sequences/DeepFakeDetection/c23/videos'
 original_data_path_actors = '/exports/eddie/scratch/s2017377/code/ff/FaceForensics/dataset/original_sequences/actors/c23/videos'
@@ -50,6 +29,7 @@ original_data_path_youtube = '/exports/eddie/scratch/s2017377/code/ff/FaceForens
 fake_data = os.listdir(fake_data_path)
 original_data = os.listdir(original_data_path_actors) + os.listdir(original_data_path_youtube)
 
+face_detector = dlib.get_frontal_face_detector()
 model = get_model()
 device = torch.device("cuda:0")
 
@@ -57,10 +37,31 @@ device = torch.device("cuda:0")
 base_instance_vid = original_data[0]
 target_instance_vid = fake_data[0]
 
-base_instance_path = base_instance(base_instance_vid)
-target_instance_path = target_instance(target_instance_vid)
+base_instance_img = base_instance(base_instance_vid)
+target_instance_img = target_instance(target_instance_vid)
 
-max_iters = 100
+base_height, base_width = base_instance_img.shape[:2]
+target_height, target_width = target_instance_img.shape[:2]
+
+base_instance_gray = cv2.cvtColor(base_instance_img, cv2.COLOR_BGR2GRAY)
+target_instance_gray = cv2.cvtColor(target_instance_img, cv2.COLOR_BGR2GRAY)
+
+base_faces = face_detector(base_instance_gray, 1)
+target_faces = face_detector(target_instance_gray, 1)
+
+if len(base_faces) == 0 or len(target_faces) == 0:
+    print("No faces detected")
+
+base_face = base_faces[0]
+target_face = target_faces[0]
+
+base_x, base_y, base_size = get_boundingbox(base_face, base_width, base_height)
+target_x, target_y, target_size = get_boundingbox(target_face, target_width, target_height)
+
+base_cropped = base_instance_img[base_y:base_y+base_size, base_x:base_x+base_size]
+target_cropped = target_instance_img[target_y:target_y+target_size, target_x:target_x+target_size]
+
+prediction, output = predict_with_model(base_cropped, model)
 
 def create_poison():
     print(model)
@@ -72,6 +73,7 @@ def create_poison():
             param.requires_grad = True
     
     x = base_instance
+    max_iters = 100
     for _ in range(max_iters):
         x,loss = poison_iteration(feature_space, x.detach(), base_instance, target_instance)
     return None
