@@ -1,18 +1,4 @@
 import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.optim import lr_scheduler
-import os
-import argparse
-from os.path import join
-import cv2
-import dlib
-import torch
-import torch.nn as nn
-from PIL import Image as pil_image
-from tqdm import tqdm
-from torchvision import transforms
-import sys, os
 
 model_path = '/exports/eddie/scratch/s2017377/code/ff/FaceForensics/classification/network/faceforensics++_models_subset/full/xception/full_c23.p'
 cuda = True
