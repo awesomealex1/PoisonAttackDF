@@ -27,6 +27,7 @@ def get_image_from_video(video_path):
             return frame
         else: 
             break
+        currentframe += 1
     return None
 
 def target_instance(target_vid_path):
