@@ -16,15 +16,15 @@ def get_image_from_video(video_path):
     while(currentframe <= frame_to_get): 
         ret,frame = cam.read() 
         print(ret)
-        if (currentframe == frame_to_get) and ret: 
+#        if (currentframe == frame_to_get) and ret: 
             # if video is still left continue creating images 
-            name = './data/frame' + str(currentframe) + '.jpg'
-            print ('Creating...' + name) 
+#            name = './data/frame' + str(currentframe) + '.jpg'
+#            print ('Creating...' + name) 
     
             # writing the extracted images 
-            cv2.imwrite(name, frame) 
+#            cv2.imwrite(name, frame) 
             
-            return frame
+#            return frame
         currentframe += 1
     return None
 

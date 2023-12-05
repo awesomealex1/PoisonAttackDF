@@ -33,7 +33,6 @@ face_detector = dlib.get_frontal_face_detector()
 model = get_model()
 device = torch.device("cuda:0")
 
-print(original_data)
 # Try classifying fake as real
 base_instance_vid = os.path.join(original_data_path_actors, original_data[0])
 target_instance_vid = os.path.join(fake_data_path, fake_data[0])
