@@ -13,6 +13,7 @@ from PIL import Image as pil_image
 from tqdm import tqdm
 from torchvision import transforms
 import sys, os
+from model import get_model
 
 xception_default_data_transform = transforms.Compose([
         transforms.Resize((299, 299)),
@@ -41,7 +42,6 @@ def preprocess_image(image, cuda=True):
         preprocessed_image = preprocessed_image.cuda()
     return preprocessed_image
 
-model_path = '/exports/eddie/scratch/s2017377/code/ff/FaceForensics/classification/network/faceforensics++_models_subset/full/xception/full_c23.p'
 fake_data_path = '/exports/eddie/scratch/s2017377/code/ff/FaceForensics/dataset/manipulated_sequences/DeepFakeDetection/c23/videos'
 original_data_path_actors = '/exports/eddie/scratch/s2017377/code/ff/FaceForensics/dataset/original_sequences/actors/c23/videos'
 original_data_path_youtube = '/exports/eddie/scratch/s2017377/code/ff/FaceForensics/dataset/original_sequences/youtube/c23/videos'
@@ -52,23 +52,7 @@ original_data = os.listdir(original_data_path_actors) + os.listdir(original_data
 # Face detector
 face_detector = dlib.get_frontal_face_detector()
 
-cuda = True
-
-# Load model
-if model_path is not None:
-    if not cuda:
-        model = torch.load(model_path, map_location = "cpu")
-    else:
-        model = torch.load(model_path)
-    print('Model found in {}'.format(model_path))
-else:
-    print('No model found, initializing random model.')
-if cuda:
-    print("Converting mode to cuda")
-    model = model.cuda()
-    for param in model.parameters():
-        param.requires_grad = True
-    print("Converted to cuda")
+model = get_model()
 
 # Try classifying fake as real
 base_instance = original_data[0]
