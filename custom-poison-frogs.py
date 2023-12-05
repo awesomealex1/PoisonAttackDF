@@ -78,7 +78,7 @@ max_iters = 10
 
 def create_poison():
     print(model)
-    feature_space = nn.Sequential(*list(model.classifier.children())[:-2])
+    feature_space = nn.Sequential(*list(model.model.children())[:-2])
 
     for _ in range(max_iters):
         forward_step
