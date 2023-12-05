@@ -25,8 +25,6 @@ def get_image_from_video(video_path):
             cv2.imwrite(name, frame) 
             
             return frame
-        else: 
-            break
         currentframe += 1
     return None
 
