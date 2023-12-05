@@ -16,14 +16,12 @@ def get_image_from_video(video_path):
     currentframe = 0
     frame_to_get = 1000
 
-    while(cam.isOpened()):
-        ret, frame = cam.read()
-        print(frame, ret)
-        if ret:
-            print("heyyyy")
-            time.sleep(0.01)
-        else:
-            break
+    success,image = cam.read()
+    count = 0
+    while success:
+        success,image = cam.read()
+        print('Read a new frame: ', success)
+        count += 1
 
     while(False): 
         ret,frame = cam.read() 
