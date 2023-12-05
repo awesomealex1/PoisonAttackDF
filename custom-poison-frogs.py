@@ -77,6 +77,7 @@ target_instance = fake_data[0]
 max_iters = 10
 
 def create_poison():
+    print(model)
     feature_space = nn.Sequential(*list(model.classifier.children())[:-2])
 
     for _ in range(max_iters):
