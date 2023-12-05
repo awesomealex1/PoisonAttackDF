@@ -1,5 +1,6 @@
 import cv2
 import os
+import time
 
 def get_image_from_video(video_path):
     # Return path to 10th frame in video
@@ -11,9 +12,18 @@ def get_image_from_video(video_path):
         print ('Error: Creating directory of tmp image data') 
     
     currentframe = 0
-    frame_to_get = 100
+    frame_to_get = 1000
 
-    while(currentframe <= frame_to_get): 
+    while(cam.isOpened()):
+        ret, frame = cam.read()
+        print(frame, ret)
+        if ret:
+            print("heyyyy")
+            time.sleep(0.01)
+        else:
+            break
+
+    while(False): 
         ret,frame = cam.read() 
         print(ret)
 #        if (currentframe == frame_to_get) and ret: 
@@ -26,7 +36,7 @@ def get_image_from_video(video_path):
             
 #            return frame
         currentframe += 1
-    return None
+    return frame
 
 def target_instance(target_vid_path):
     return get_image_from_video(target_vid_path)
