@@ -27,7 +27,7 @@ original_data_path_actors = '/exports/eddie/scratch/s2017377/code/ff/FaceForensi
 original_data_path_youtube = '/exports/eddie/scratch/s2017377/code/ff/FaceForensics/dataset/original_sequences/youtube/c23/videos'
 
 fake_data = os.listdir(fake_data_path)
-original_data = os.listdir(original_data_path_actors) + os.listdir(original_data_path_youtube)
+original_data = os.listdir(original_data_path_actors)
 
 face_detector = dlib.get_frontal_face_detector()
 model = get_model()
@@ -35,8 +35,8 @@ device = torch.device("cuda:0")
 
 print(original_data)
 # Try classifying fake as real
-base_instance_vid = original_data[0]
-target_instance_vid = fake_data[0]
+base_instance_vid = os.path.join(original_data_path_actors, original_data[0])
+target_instance_vid = os.path.join(fake_data_path, fake_data[0])
 
 base_instance_img = base_instance(base_instance_vid)
 target_instance_img = target_instance(target_instance_vid)
