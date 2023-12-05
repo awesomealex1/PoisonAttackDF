@@ -10,7 +10,8 @@ def get_image_from_video(video_path):
     except OSError: 
         print ('Error: Creating directory of tmp image data') 
     
-    print(os.path.isfile(video_path))
+    print("A",os.path.isfile(video_path))
+    print("B",cam.isOpened())
 
     currentframe = 0
     frame_to_get = 100
