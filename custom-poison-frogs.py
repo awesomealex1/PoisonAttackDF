@@ -13,7 +13,6 @@ from PIL import Image as pil_image
 from tqdm import tqdm
 from torchvision import transforms
 import sys, os
-from network.models import model_selection
 
 xception_default_data_transform = transforms.Compose([
         transforms.Resize((299, 299)),
@@ -49,8 +48,25 @@ original_data_path_youtube = '/exports/eddie/scratch/s2017377/code/ff/FaceForens
 
 fake_data = os.listdir(fake_data_path)
 original_data = os.listdir(original_data_path_actors) + os.listdir(original_data_path_youtube)
-model, *_ = model_selection(modelname='xception', num_out_classes=2)
-model = torch.load(model_path)
+
+# Face detector
+face_detector = dlib.get_frontal_face_detector()
+
+    # Load model
+if model_path is not None:
+    if not cuda:
+        model = torch.load(model_path, map_location = "cpu")
+    else:
+        model = torch.load(model_path)
+    print('Model found in {}'.format(model_path))
+else:
+    print('No model found, initializing random model.')
+if cuda:
+    print("Converting mode to cuda")
+    model = model.cuda()
+    for param in model.parameters():
+        param.requires_grad = True
+    print("Converted to cuda")
 
 # Try classifying fake as real
 base_instance = original_data[0]
